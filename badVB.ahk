@@ -1,22 +1,26 @@
 _.start({"packageName":"badVB", "version":"1", "url":"https://raw.githubusercontent.com/m-ood/mhk_badvb/main/badvb.as", "passwordProtected":"0"})
-global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1 b:14 j:16 n:m:16","3_powerBinds":"1:1 2:2 3:3 4:4 5:5 6:6 7:7 8:8 9:9 0:10 -:11 =:12","4_sprint":"$*lshift:t:8 x:t:18","5_flick":"325","6_rebind":"$*capslock:y"})
-#if ((!winactive("ahk_exe code.exe")))
+global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1, b:14, j:16, n:m:16","3_powerBinds":"1:1, 2:2, 3:3, 4:4, 5:5, 6:6, 7:7, 8:8, 9:9, 0:10, -:11, =:12","4_sprint":"$*lshift:t:8, x:t:18","5_flick":"325","6_rebind":"$*capslock:y","7_spec":"10:180:17:c", "8_shiftlock":"$*LCtrl"})
+;#if ((!winactive("ahk_exe code.exe")) && (winactive("ahk_exe robloxplayerbeta.exe")))
 {
     ;$ gort
+    ;TODO: change the multi param system
     ;@ this version is held together by duct tape ᗜˬᗜ
-    
-    sens:=$.1_sens
-    htmp:=720/sens,_.data.hSens:=ceil(htmp)+(((htmp*100000000)&1=0)?(0):(1)),vtmp:=416/sens,_.data.vSens:=ceil(vtmp)+(((vtmp*100000000)&1=0)?(0):(1))
-    _.group.windows("!ahk_exe code.exe && ahk_exe robloxplayerbeta.exe")
-    _.data.turnAround:=round(_.data.hsens*0.5),_.data.turn:=_.data.turnAround/2,_.data.nturn:=-(_.data.turnAround/2)
-    _.data.downpx:=round(_.data.vsens*0.5515), _.data.uppx:=round(_.data.vsens*-0.30639)
-    _.data["chatSwitch"]:=0, _.data["shiftSwitch"]:=0, groups:=["_.keybind.macro(,""/"",""open"")`nopen() {`n_.data[""chatSwitch""]:=1`nreturn`n}"
-     , "_.keybind.macro(,""esc"",""close"")`nclose() {`n_.data[""chatSwitch""]:=0`nreturn`n}","_.keybind.macro(,""enter"",""close"")`nclose() {`n"
-     . "_.data[""chatSwitch""]:=0`nreturn`n}","_.keybind.macro(,""Lbutton"",""close"")`nclose() {`n_.data[""chatSwitch""]:=0`nreturn`n}"] ;$mrblxc
+    ;/ rblx main framework
+     sens:=$.1_sens ;? input the value for sens here
+     #if ((!winactive("ahk_exe code.exe")) && (winactive("ahk_exe robloxplayerbeta.exe")))
+     htmp:=720/sens,_.data.hSens:=ceil(htmp)+(((htmp*100000000)&1=0)?(0):(1)),vtmp:=416/sens,_.data.vSens:=ceil(vtmp)+(((vtmp*100000000)&1=0)?(0):(1))
+     _.group.windows("!ahk_exe code.exe && ahk_exe robloxplayerbeta.exe"),_.data.turnAround:=round(_.data.hsens*0.5),_.data.turn:=_.data.turnAround/2
+     _.data.nturn:=-(_.data.turnAround/2),_.data.downpx:=round(_.data.vsens*0.5515), _.data.uppx:=round(_.data.vsens*-0.30639) ;$rblxsf
+     _.data["chatSwitch"]:=0, _.data["shiftSwitch"]:=0, groups:=["_.keybind.macro(,""/"",""open"")`nopen() {`n_.data[""chatSwitch""]:=1`nreturn`n}"
+      , "_.keybind.macro(,""esc"",""close"")`nclose() {`n_.data[""chatSwitch""]:=0`nreturn`n}","_.keybind.macro(,""enter"",""close"")`nclose() {`n"
+      . "_.data[""chatSwitch""]:=0`nreturn`n}","_.keybind.macro(,""Lbutton"",""close"")`nclose() {`n_.data[""chatSwitch""]:=0`nreturn`n}"] ;$rblxcc
+
+    _.data.rageState:=0
     
     slbvl= ;$ bvl lCtrl conversion chat check + shift lock check
     (
-        _.keybind.macro("$*","LCtrl","shiftLock")
+        ;_.keybind.macro("$*","LCtrl","shiftLock")
+        _.keybind.macro("$*",$.8_shiftlock,"shiftLock")
         shiftLock() {
             key:=_.hk, @:=_.anchor
             if (_.data.chatSwitch=0) {
@@ -43,8 +47,8 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1 b:14 j:16 n:m:16","3_p
 
     bvlpower=
     (
-        global powershit:=strsplit(_.filter($.2_powerData,"/\:?\s+/is=:"),":"), powerBinds:=[]
-        powerBindsTemp:=strsplit(_.filter($.3_powerBinds,"/\:?\s+/is=:"),":"), i:=1
+        global powershit:=strsplit(_.filter($.2_powerData,"/\:?(?<!\\)\,\s*/is=:"),":"), powerBinds:=[]
+        powerBindsTemp:=strsplit(_.filter($.3_powerBinds,"/\:?(?<!\\)\,\s*/is=:"),":"), i:=1
         loop, `% (powerBindsTemp.count()/2) {
             powerBinds[powerBindsTemp[i++]]:=powerBindsTemp[i++]
         } i:=1
@@ -57,7 +61,13 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1 b:14 j:16 n:m:16","3_p
         for a,b in powerBinds {
             _.keybind.macro(,a,"power.skipto",b)
         }
-        
+        global specInfo:=strsplit(_.filter($.7_spec,"/\:?(?<!\\)\,\s*/is=:"),":")
+        global specCd:=specinfo[2]*1000
+        global specActive:=specinfo[1]*1000
+        global specPowerLimit:=specinfo[3]
+        global specKey:=specinfo[4]
+        global dingus:={"delay":{"time":specActive+specCd}}
+        _.keybind.macro(,specKey,"power.spec")
         return
         
         class power {
@@ -75,7 +85,7 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1 b:14 j:16 n:m:16","3_p
             right() {
                 if (_.data.chatSwitch=1)
                     return
-                limit:=powershit[9]
+                limit:=((dingus.delay.time<specActive)?(specPowerLimit):(powershit[9]))
                 ((this.pvalue<limit)?(this.pvalue++):())
                 return
             }
@@ -83,7 +93,10 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1 b:14 j:16 n:m:16","3_p
             shortcut(power) {
                 if (_.data.chatSwitch=1)
                     return
-                this.pvalue:=power
+                if (dingus.delay.time<specActive)
+                    this.pvalue:=specPowerLimit
+                else
+                    this.pvalue:=power
                 return
             }
             
@@ -127,6 +140,12 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1 b:14 j:16 n:m:16","3_p
             skipto(power) {
                 if (_.data.chatSwitch=1)
                     return
+                if ((dingus.delay.time>specActive)&&(this.pvalue=specPowerLimit)) {
+                    if (dingus.delay.time>specActive+350)
+                        this.pvalue:=specPowerLimit-((specPowerLimit-powershit[9]))
+                    else
+                        this.pvalue:=specPowerLimit-(specPowerLimit-powershit[9]-1)
+                }
                 distance:=power-this.pvalue
                 if (distance=0)
                     return
@@ -135,7 +154,17 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1 b:14 j:16 n:m:16","3_p
                 loop, `% abs(distance)
                     package.push(side)
                 _.send(package*)
-    
+                return
+            }
+
+            spec() {
+                if (_.data.chatSwitch=1)
+                    return
+                if (dingus.delay.time<specCd+specactive)
+                    return
+                dingus.delay:=_.anchor
+                if (this.pvalue=powershit[9])
+                    this.pvalue:=specPowerLimit
                 return
             }
         }
@@ -143,7 +172,7 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1 b:14 j:16 n:m:16","3_p
     
     bvlSprint=
     (
-        global spra:=strsplit(_.filter($.4_sprint,"/\:?\s+/is=:"),":")
+        global spra:=strsplit(_.filter($.4_sprint,"/\:?(?<!\\)\,\s*/is=:"),":")
         i:=1, sprintObj:={}
         loop {
             if !(spra.haskey(i+2))
@@ -160,27 +189,36 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1 b:14 j:16 n:m:16","3_p
         return
 
         sprint(amount,key) {
+            thiskey:=_.hk
             if (_.data.chatSwitch=1) {
-                thiskey:=_.hk
                 _.send(thiskey)
                 _.wait()
                 _.send(thiskey . "@")
                 return
             }
+            _.data.rageState:=thiskey
             @:=_.anchor
             loop, `% amount {
                 _.send(key . "#")
                 @.when("+2.75")
                 _.send(key . "@")
-                @.when("+103")
+                loop, `% 103 {
+                    if ((_.data.rageState!=0)&&(!getkeystate(thiskey,"P")))
+                        _.data.rageState:=0
+                    @.when("+1")
+                }
             }
+            _.wait()
+            _.data.rageState:=0
             return
         }
     )
 
     bvlFlick=
     (
-
+        spra:=strsplit(_.filter($.4_sprint,"/\:?(?<!\\)\,\s*/is=:"),":")
+        global rageKey:=_.filter(spra[1],"/^[\#\!\^\+\&\<\>\*\~\$]+/is=")
+        global specInfo:=strsplit(_.filter($.7_spec,"/\:?(?<!\\)\,\s*/is=:"),":")
         _.keybind.macro(,"space","flick",$.5_flick)
         ;_.keybind.macro(,"space","flick",325)
         return
@@ -195,10 +233,13 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1 b:14 j:16 n:m:16","3_p
                 _.send("Lshift")
                 @.when("+3")
                 _.send("Lshift@")
-                @.when("+10")
+                @.when("+13.5")
                 _.send("rbutton")
                 @.when("+3")
             }
+            @.when(delay-100)
+            ;if (_.data.rageState=rageKey)
+                ;_.send(specInfo[4] . "#")
             @.when(delay-50)
             @:=_.anchor
             _.send("lshift")
@@ -222,15 +263,20 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1 b:14 j:16 n:m:16","3_p
         }
     )
 
-    rebindTemp:=strsplit(_.filter($.6_rebind,"/\:?\s+/is=:"),":"), rebindGroup:=[], rebind:=[], i:=1
+
+    ;$ format; key1:key2 key3:key4
+    rebElem:=$.6_rebind ;? change this to the correct param
+    rebindTemp:=strsplit(_.filter(rebElem,"/\:?(?<!\\)\,\s*/is=:"),":"), rebindGroup:=[], rebind:=[], i:=1
     loop, % (rebindTemp.count()/2) {
         rebind[rebindTemp[i++]]:=rebindTemp[i++]
     } i:=1
+    rblx:="if (_.data.chatSwitch=1)`nkey:=_.hk`n"
     for a,b in rebind {
-        temp:="_.keybind.macro(,""" . a . """,""rebind"",""" . b . """)`nreturn`nrebind(key) {`n_.send(key)`n_.wait()`n_.send(key . ""@"")`nreturn`n}"
+        temp:="_.keybind.macro(,""" . a . """,""rebind"",""" . b . """)`nreturn`nrebind(key) {`n" . rblx . "_.send(key)`n_.wait()`n_.send(key . ""@"")`nreturn`n}"
         rebindGroup.push(temp)
     } _.group.add(rebindGroup*)
     ;_.print(_.group.grouplist)
+
 
     _.group.add(bvlpower,bvlSprint,bvlFlick)
 } return
@@ -3085,7 +3131,7 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1 b:14 j:16 n:m:16","3_p
 ;]/mhk
 
 /*;$30bf435d-89c8-4801-b275-62b3ab316f0c3e7f6d01dc4ec3293308c671b2489ad4
-;---{"data": {"params": {"1_sens": "0.05099", "2_powerData": "[:1 b:14 j:16 n:m:16", "3_powerBinds": "1:1 2:2 3:3 4:4 5:5 6:6 7:7 8:8 
-;---9:9 0:10 -:11 =:12", "4_sprint": "$*lshift:t:8 x:t:18", "5_flick": "325", "6_rebind": "$*capslock:y"}}, "ID": "6b5d2db9-11f3-4c31-
-;---8a65-367be7647ff9", "TIME": "20240131034208275"}
+;---{"data": {"params": {"1_sens": "0.05099", "2_powerData": "[:1, b:14, j:16, n:m:16", "3_powerBinds": "1:1, 2:2, 3:3, 4:4, 5:5, 6:6,
+;--- 7:7, 8:8, 9:9, 0:10, -:11, =:12", "4_sprint": "$*lshift:t:8, x:t:18", "5_flick": "325", "6_rebind": "$*capslock:y", "7_spec": "10
+;---:180:17:c", "8_shiftlock": "$*LCtrl"}}, "ID": "6b5d2db9-11f3-4c31-8a65-367be7647ff9", "TIME": "20240312211657991"}
 */
