@@ -33,8 +33,8 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1, b:14, j:16, n:m:16","
                 @.when("+30")
                 _.send("lshift@")
             } else {
-                _.send("lctrl")
-                ekey:="lctrl@"
+                _.send(key)
+                ekey:=key . "@"
             }
             _.wait()
             if (ekey!="")
