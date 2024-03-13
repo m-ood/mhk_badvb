@@ -288,7 +288,7 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1, b:14, j:16, n:m:16","
 ;[/mhk
     ;ᗜˬᗜ
     class _ {
-        static version:="mhk.3.ea.6" ;$version
+        static version:="mhk.3.ea.8" ;$version
         static gitName:="m-ood/mhk/" ;$rootUrl
         ;/methods
             ;/tas
@@ -305,17 +305,35 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1, b:14, j:16, n:m:16","
                                 return 0
                             modCheck:=((base.filter(hotkey,base.patterns.hkStrip))?(hotkey):(modifiers . hotkey)), id:=base.md5(modCheck)
                             keyOnly:=base.filter(modCheck,base.patterns.hkOnly),modOnly:=base.filter(modCheck,base.patterns.modOnly)
-                            if (this.hkThread.haskey(id)) {
+                            if (this.hkRef.haskey(id)) {
                                 this.close(id)
                             } this.hkRef[id]:={}, func:=base.funcLiteral(func2,args*), this.hkref[id].func:=func, this.hkdict[modcheck]:=id
-                            this.hkRef[id].key:=keyOnly, this.hkRef[id].mod:=modOnly, this.hkRef[id].status:="On"
+                            this.hkRef[id].key:=keyOnly, this.hkRef[id].mod:=modOnly, this.hkRef[id].status:="On", this.hkref[id].type:="macro"
                             ;hotkeyThreadInfo:=this.__createHotkeyThread(modCheck,keyOnly,func2,id,args*)
                             hotkey, % modcheck, % "_系统标签", % "On"
-                            finalObj:={"modifiers":modOnly,"hotkey":keyOnly,"id":id}
+                            finalObj:={"modifiers":modOnly,"hotkey":keyOnly,"id":id,type:"macro"}
                             finalObj["path"]:=this.hkRef[id].func.path
                             finalObj["close"]:=objbindmethod(this,"close",id)
                             finalObj["open"]:=objbindmethod(this,"open",id)
-                            ;finalObj["suspend"]:=objbindmethod(this,"suspend",id,"")
+                            finalObj["remove"]:=objbindmethod(this,"remove",id)
+                            return finalObj
+                        }
+
+                        sMacro(hstring:="",func2:="",args*) { ;! make it so you can bypass func2 requirement
+                            if (hstring="")
+                                return 0
+                            modCheck:=((base.filter(hstring,base.patterns.hotstringOptionsStrip))?(hstring):(":?*:" . hstring)), id:=base.md5(modCheck)
+                            if (this.hkRef.haskey(id)) {
+                                this.close(id)
+                            } this.hkref[id]:={}, func:=base.funcLiteral(func2,args*), this.hkref[id].func:=func
+                            this.hkref[id].string:=modCheck, this.hkref[id].status:="On", this.hkref[id].type:="sMacro"
+                            ;_.print(modCheck,id)
+                            hotstring(modcheck,func.func,"On")
+                            finalObj:={"string":modCheck,"id":id,type:"sMacro"}
+                            finalObj["path"]:=this.hkRef[id].func.path
+                            finalObj["close"]:=objbindmethod(this,"close",id)
+                            finalObj["open"]:=objbindmethod(this,"open",id)
+                            finalObj["remove"]:=objbindmethod(this,"remove",id)
                             return finalObj
                         }
 
@@ -355,19 +373,55 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1, b:14, j:16, n:m:16","
                         }
 
                         close(id) {
-                            hotkey, % this.hkref[id].hotkey,, % "Off"
+                            switch this.hkref[id].type {
+                                case "macro": {
+                                    hotkey, % (this.hkref[id].mod . this.hkref[id].key),, % "Off"
+                                } case "sMacro": {
+                                    hotstring(this.hkref[id].string,,"Off")
+                            }}
                             this.hkref[id].status:="Off"
                             return
                         }
 
                         open(id) {
-                            hotkey, % this.hkref[id].hotkey,, % "On"
+                            switch this.hkref[id].type {
+                                case "macro": {
+                                    hotkey, % (this.hkref[id].mod . this.hkref[id].key),, % "On"
+                                } case "sMacro": {
+                                    hotstring(this.hkref[id].string,,"On")
+                            }}
                             this.hkref[id].status:="On"
+                        }
+
+                        remove(id) {
+                            switch this.hkref[id].type {
+                                case "macro": {
+                                    hotkey, % (this.hkref[id].mod . this.hkref[id].key),, % "Off"
+                                } case "sMacro": {
+                                    hotstring(this.hkref[id].string,,"Off")
+                            }}
+                            this.hkref.delete(id)
+                            return
                         }
 
                         closeAll() {
                             for a,b in this.hkref
                                 this.close(a)
+                            return
+                        }
+
+                        openAll() {
+                            for a,b in this.hkref
+                                this.open(a)
+                            return
+                        }
+
+                        removeAll() {
+                            idlist:=[]
+                            for a,b in this.hkref
+                                idList.push(a)
+                            for a,b in idList
+                                this.remove(b)
                             return
                         }
                     }
@@ -569,6 +623,7 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1, b:14, j:16, n:m:16","
                     static args2Bind:={}
                     static allowedWindows
                     add(src*) {
+                        final:=[]
                         for a,b in src {
                             if (fileexist(b)) {
                                 id:=b,cont:=base.file.read(b),this.compResList[b]:=cont
@@ -583,12 +638,13 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1, b:14, j:16, n:m:16","
                                 }
                             }
                             this.createGroupThread(id,cont)
+                            final.push(id)
                         }
-                        return
+                        return final
                     }
 
-                    re(all*) {
-                        return all
+                    re(ret,self) {
+                        return ret
                     }
 
                     suspendAll(override:="") {
@@ -642,6 +698,30 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1, b:14, j:16, n:m:16","
                         this.allowedWindows:="#if " . waFlatWt . "`n"
                         return this.allowedWindows
                     }
+
+                    remove(id*) {
+                        for a,b in id {
+                            this.groupList[b].thr.ahkFunction("turnOff","on")
+                            this.groupList[b].thr.ahkPause("on")
+                            this.groupList[b].thr.ahkTerminate[]
+                            this.groupList.delete(b)
+                        }
+                        return
+                    }
+                    
+                    removeAll() {
+                        for a,b in this.grouplist
+                            this.remove(a)
+                        return
+                    }
+                    
+                    reset(id) {
+                        content:=this.groupList[id].content()
+                        this.remove(id)
+                        this.createGroupThread(id,content)
+                        return
+                    }
+                    
                 }
             ;/qol
                 ;/trayCLick
@@ -764,7 +844,7 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1, b:14, j:16, n:m:16","
                                             regexmatch(_string,b.options . ")" . b.pattern,temp)
                                             _string:=regexreplace(_string,"isO)^.{" . pos . "}\K.{" . length . "}(?=.*$)","")
                                         } case "1": _string:=regexreplace(_string,b.options . ")" . b.pattern,b.replace),temp:=_string
-                                }} if (_string==lastString)
+                                }} if ("" . _string=="" . lastString)
                                     break
                                 final.push(temp)
                             } until ((_string="")||(replaceBreak=1))
@@ -893,6 +973,13 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1, b:14, j:16, n:m:16","
                         }
                     }
                 
+                ;/random wrapper
+                    random(min,max) {
+                        local final
+                        random,final, % min, % max
+                        return final
+                    }
+                
             
             ;/data
                 ;/registry
@@ -932,12 +1019,14 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1, b:14, j:16, n:m:16","
                         static __metadata:={}
                         static override:=0
                         dump(overrideFile:="",iscompiled:="",overrideExit:="",rest*) {
-                            ;_.print(overridefile,iscompiled,overrideexit,rest,this.override)
-                            ;msgbox, % "we also end up here"
+                            ;_.print(rest[1])
+                            ;msgbox, % "pause"
                             file:=((overrideFile!="")?(overrideFile):(a_scriptdir . "\" . a_scriptname))
                             iscomp:=((iscompiled!="")?(iscompiled):(a_iscompiled))
                             if (((rest[1]="reload")&&(iscomp=0))||(this.override!=0))
                                 return
+                            if (rest[1]="single")
+                                overrideExit:=""
                             flag:="/(?:(?:`n|`r`n)\/\*\;\$" . this.key . "(?=`r`n\;\-\-\-))\K.+?(?=`r`n\*\/)/is"
                             this.__metadata["ID"]:=this.bid
                             this.__metadata["TIME"]:=A_Now . A_MSec
@@ -1354,21 +1443,6 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1, b:14, j:16, n:m:16","
                             base.reg.set(regkey,temp)
                             return
                         }
-                    }
-                
-                ;/fco
-                    fco(obj) {
-                        try
-                            final:=ObjClone(obj)
-                        for a,b in final {
-                            ;_.print(a,b,"#")
-                            if ((isobject(b)))
-                                try
-                                    final[a]:=this.fco(b)
-                            if (final[a]="")
-                                final[a]:=b
-                        }
-                        return final
                     }
                 
             
@@ -2163,6 +2237,8 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1, b:14, j:16, n:m:16","
                                 . """ /icon """ . (base.reg.get("HKEY_CURRENT_USER\SOFTWARE\AutoHotkey\Ahk2Exe_H@@LastIcon")) . """ /bin """ . (bin)
                                 . """ /compress " . comp . " " . enc
                                 runwait, % request
+                                ;! wait here lmfao
+                                ;! or check timestamps similar to how _.file.edit works
                                 if (_transferPer!="")
                                     base.per.dump((_path . "\" . _fileName . ".exe"),1,1)
                                 data:=base.export()
@@ -2721,7 +2797,7 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1, b:14, j:16, n:m:16","
                         
                     }
 
-                    winhttp(args*) {
+                    winhttp(args*) { ;! accept winhttps obj request for headers and request
                         reqObj:={}, reqObj.id:=this.uuid, reqObj["请求数据"]:={}, i:=0, type:=this.__msxml2.type, reqObj.requestAmount:=args.count()
                         for a,b in this.__msxml2 {
                             if (a!="__Class")
@@ -2929,7 +3005,8 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1, b:14, j:16, n:m:16","
                 ,"modOnly":{"options": "is", "pattern": "^[\#\!\^\+\&\<\>\*\~\$]*(?=.*$)"}
                 ,"carpIdCheck":{"options": "is", "pattern": "^[A-z0-9!@#$%^&*_+=\-.]+$"}
                 ,"scrNameNoExt":{"options": "is", "pattern": "^((?:.*)(?=\..+?$))"}
-                ,"keybindWindows":{"options": "is", "pattern": "(?:ahk\_.+?\s.+?(?=\s?(?:\&\&|\|\||and|or|\)|$)))", "replace": "winactive(""$0"")"}}
+                ,"keybindWindows":{"options": "is", "pattern": "(?:ahk\_.+?\s.+?(?=\s?(?:\&\&|\|\||and|or|\)|$)))", "replace": "winactive(""$0"")"}
+                ,"hotstringOptionsStrip":{"options": "is", "pattern": "\:.*\:"}}
             
         
         ;/extensions
@@ -3129,9 +3206,8 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1, b:14, j:16, n:m:16","
          * \                                      |_|                  
          */
 ;]/mhk
-
 /*;$30bf435d-89c8-4801-b275-62b3ab316f0c3e7f6d01dc4ec3293308c671b2489ad4
 ;---{"data": {"params": {"1_sens": "0.05099", "2_powerData": "[:1, b:14, j:16, n:m:16", "3_powerBinds": "1:1, 2:2, 3:3, 4:4, 5:5, 6:6,
 ;--- 7:7, 8:8, 9:9, 0:10, -:11, =:12", "4_sprint": "$*lshift:t:8, x:t:18", "5_flick": "325", "6_rebind": "$*capslock:y", "7_spec": "10
-;---:180:17:c", "8_shiftlock": "$*LCtrl"}}, "ID": "6b5d2db9-11f3-4c31-8a65-367be7647ff9", "TIME": "20240312212248435"}
+;---:180:17:c", "8_shiftlock": "$*LCtrl"}}, "ID": "6b5d2db9-11f3-4c31-8a65-367be7647ff9", "TIME": "20240312214452440"}
 */
