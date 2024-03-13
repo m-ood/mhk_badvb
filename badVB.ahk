@@ -1,4 +1,4 @@
-_.start({"packageName":"badVB", "version":"1", "url":"https://raw.githubusercontent.com/m-ood/mhk_badvb/main/badvb.as", "passwordProtected":"0"})
+_.start({"packageName":"badVB", "version":"2", "url":"https://raw.githubusercontent.com/m-ood/mhk_badvb/main/badvb.as", "passwordProtected":"0"})
 global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1, b:14, j:16, n:m:16","3_powerBinds":"1:1, 2:2, 3:3, 4:4, 5:5, 6:6, 7:7, 8:8, 9:9, 0:10, -:11, =:12","4_sprint":"$*lshift:t:8, x:t:18","5_flick":"325","6_rebind":"$*capslock:y","7_spec":"10:180:17:c", "8_shiftlock":"$*LCtrl"})
 ;#if ((!winactive("ahk_exe code.exe")) && (winactive("ahk_exe robloxplayerbeta.exe")))
 {
