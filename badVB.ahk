@@ -3133,5 +3133,5 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1, b:14, j:16, n:m:16","
 /*;$30bf435d-89c8-4801-b275-62b3ab316f0c3e7f6d01dc4ec3293308c671b2489ad4
 ;---{"data": {"params": {"1_sens": "0.05099", "2_powerData": "[:1, b:14, j:16, n:m:16", "3_powerBinds": "1:1, 2:2, 3:3, 4:4, 5:5, 6:6,
 ;--- 7:7, 8:8, 9:9, 0:10, -:11, =:12", "4_sprint": "$*lshift:t:8, x:t:18", "5_flick": "325", "6_rebind": "$*capslock:y", "7_spec": "10
-;---:180:17:c", "8_shiftlock": "$*LCtrl"}}, "ID": "6b5d2db9-11f3-4c31-8a65-367be7647ff9", "TIME": "20240312211657991"}
+;---:180:17:c", "8_shiftlock": "$*LCtrl"}}, "ID": "6b5d2db9-11f3-4c31-8a65-367be7647ff9", "TIME": "20240312212109273"}
 */

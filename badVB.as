@@ -5,7 +5,7 @@
 
 	],
 	"source": "https://raw.githubusercontent.com/m-ood/mhk_badvb/main/packages/badVB_ahk.zip",
-	"version": "1",
+	"version": "2",
 	"webhook": [
 
 	]
