@@ -289,7 +289,7 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1, b:14, j:16, n:m:16","
         rebindGroup.push(temp)
     } _.group.add(rebindGroup*)
     ;_.print(_.group.grouplist)
-    _.print(_.per.__metadata.yaml)
+    ;_.print(_.per.__metadata.yaml)
 
     _.group.add(bvlpower,bvlSprint,bvlFlick)
 } return
@@ -3440,5 +3440,5 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1, b:14, j:16, n:m:16","
 ;---4_sprint": "$*lshift:t:8, $*x:t:18", "5_flick": "325", "6_rebind": "$*capslock:y", "7_spec": "10:180:17:c", "8_shiftlock": "$*LCtr
 ;---l"}, "tewi": {"1_sens": "0.05099", "2_powerData": "[:1, b:14, j:15, n:m:15", "3_powerBinds": "1:1, 2:2, 3:3, 4:4, 5:5, 6:6, 7:7, 8
 ;---:8, 9:9, 0:10, -:11, =:12", "4_sprint": "$*lshift:t:8, $*x:t:18", "5_flick": "325", "6_rebind": "$*capslock:y", "7_spec": "15:180:
-;---17:c", "8_shiftlock": "$*LCtrl"}}, "TIME": "20240419213209720"}
+;---17:c", "8_shiftlock": "$*LCtrl"}}, "TIME": "20240419213506424"}
 */
