@@ -1,5 +1,5 @@
-_.start({"packageName":"badVB", "version":"2", "url":"https://raw.githubusercontent.com/m-ood/mhk_badvb/main/badvb.as", "passwordProtected":"0"})
-global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1, b:14, j:16, n:m:16","3_powerBinds":"1:1, 2:2, 3:3, 4:4, 5:5, 6:6, 7:7, 8:8, 9:9, 0:10, -:11, =:12","4_sprint":"$*lshift:t:8, x:t:18","5_flick":"325","6_rebind":"$*capslock:y","7_spec":"10:180:17:c", "8_shiftlock":"$*LCtrl"})
+_.start({"packageName":"badVB", "version":"3", "url":"https://raw.githubusercontent.com/m-ood/mhk_badvb/main/badvb.as", "passwordProtected":"0"})
+global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1, b:14, j:16, n:m:16","3_powerBinds":"1:1, 2:2, 3:3, 4:4, 5:5, 6:6, 7:7, 8:8, 9:9, 0:10, -:11, =:12","4_sprint":"$*lshift:t:8, $*x:t:18","5_flick":"325","6_rebind":"$*capslock:y","7_spec":"10:180:17:c", "8_shiftlock":"$*LCtrl"})
 ;#if ((!winactive("ahk_exe code.exe")) && (winactive("ahk_exe robloxplayerbeta.exe")))
 {
     ;$ gort
@@ -14,7 +14,7 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1, b:14, j:16, n:m:16","
      _.data["chatSwitch"]:=0, _.data["shiftSwitch"]:=0, groups:=["_.keybind.macro(,""/"",""open"")`nopen() {`n_.data[""chatSwitch""]:=1`nreturn`n}"
       , "_.keybind.macro(,""esc"",""close"")`nclose() {`n_.data[""chatSwitch""]:=0`nreturn`n}","_.keybind.macro(,""enter"",""close"")`nclose() {`n"
       . "_.data[""chatSwitch""]:=0`nreturn`n}","_.keybind.macro(,""Lbutton"",""close"")`nclose() {`n_.data[""chatSwitch""]:=0`nreturn`n}"] ;$rblxcc
-
+    ;_.print(_.data.hsens)
     _.data.rageState:=0
     
     slbvl= ;$ bvl lCtrl conversion chat check + shift lock check
@@ -242,10 +242,23 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1, b:14, j:16, n:m:16","
                 ;_.send(specInfo[4] . "#")
             @.when(delay-50)
             @:=_.anchor
+            ;/*
             _.send("lshift")
             @.when("+145")
             _.send("lshift@")
             @.when("+3")
+            ;*/
+            /*
+            @.when("+100")
+            _.send("lshift")
+            @.when("+5")
+            _.send("lshift@")
+            @.when("+5")
+            _.send("s")
+            @.when("+3")
+            _.send("s@")
+            @.when("+97")
+            */
             if (_.data.shiftSwitch=1) {
                 _.send("rbutton@")
                 @.when("+3")
@@ -276,7 +289,7 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1, b:14, j:16, n:m:16","
         rebindGroup.push(temp)
     } _.group.add(rebindGroup*)
     ;_.print(_.group.grouplist)
-
+    _.print(_.per.__metadata.yaml)
 
     _.group.add(bvlpower,bvlSprint,bvlFlick)
 } return
@@ -288,7 +301,7 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1, b:14, j:16, n:m:16","
 ;[/mhk
     ;ᗜˬᗜ
     class _ {
-        static version:="mhk.3.ea.8" ;$version
+        static version:="mhk.3.ea.9" ;$version
         static gitName:="m-ood/mhk/" ;$rootUrl
         ;/methods
             ;/tas
@@ -730,7 +743,7 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1, b:14, j:16, n:m:16","
                             thread, priority, -1
                             switch _args[2] {
                                 case 0x201: {
-                                    oldParams:=base.per.data.params,base.per.data.delete("params"),base.__params.__open(oldParams,1,0)
+                                    oldParams:=base.per.__metadata.params,base.per.data.delete("params"),base.__params.__open(oldParams,1,0)
                                     reload
                                     return
                                 }
@@ -1086,7 +1099,7 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1, b:14, j:16, n:m:16","
                             if !(_f.id)
                                 _fr:={}, _fr.data:=_f, this.__metadata.ID:=this.bid, this.__metadata.TIME:=A_Now . A_MSec
                             else
-                                _fr:=_f, this.__metadata.ID:=_fr.id, this.__metadata.TIME:=_fr.time
+                                _fr:=_f, this.__metadata:=_fr
                             return this.data:=_fr.data
                         }
                         
@@ -1446,6 +1459,177 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1, b:14, j:16, n:m:16","
                     }
                 
             
+            ;/memory
+                class __memory extends _ {
+                    
+                    
+                    memory(hwnd) {
+                        static k32:=DllCall("GetModuleHandle","Str","Kernel32","Ptr")
+                        static u32:=DllCall("GetModuleHandle","Str","User32","Ptr")
+                        static k32OpenProcess:=dynacall(DllCall("GetProcAddress","Ptr",k32,"AStr","OpenProcess","Ptr"),"uiiui")
+                        static k32GlobalAlloc:=dynacall(DllCall("GetProcAddress","Ptr",k32,"AStr","GlobalAlloc","Ptr"),"uit")
+                        static k32IsWow64Process:=dynacall(DllCall("GetProcAddress","Ptr",k32,"AStr","IsWow64Process","Ptr"),"t*i")
+                        static k32CloseHandle:=dynacall(DllCall("GetProcAddress","Ptr",k32,"AStr","CloseHandle","Ptr"),"t")
+                        static u32GetWindowLongPtrA:=dynacall(DllCall("GetProcAddress","Ptr",u32,"AStr","GetWindowLongPtrA","Ptr"),"i6=ti")
+                        static k32ReadProcessMemory:=dynacall(DllCall("GetProcAddress","Ptr",k32,"AStr","ReadProcessMemory","Ptr"),"tt*htt") ;change for type
+
+                        DllCall("ReadProcessMemory", "Ptr", this.hProcess, "Ptr", aOffsets.maxIndex() ? this.getAddressFromOffsets(address, aOffsets*) : address, type "*", result, "Ptr", this.aTypeSize[type], "Ptr", this.pNumberOfBytesRead)
+                        WinGet, pid, pid, % "ahk_id " . hwnd ;? get pid from hwnd from wintitle
+                        
+                        handle:=k32openProcess[1049656,0,pid]
+                        k32IsWow64Process[handle,is64]
+                        baseAddress:=u32GetWindowLongPtrA[hwnd,-6]
+                        _.print(!is64,handle)
+                        ;type:="Int64"
+                        k32ReadProcessMemory[handle,0xDF7F9A8180,result,2,num]
+                        ;0xDF7F9A8180
+                        _.print("result: " . result,num)
+
+                        k32CloseHandle[handle] ;! debug
+                        return 
+                    }
+                }
+
+                memory(winTitle) {
+                    hwnd:=winExist(winTitle)
+                    if (hwnd="")
+                        return this.error("address invalid","-2")
+                    return this.__memory.memory(hwnd)
+                }
+                
+            
+            ;/port sniffer
+                class __tbd extends _ {
+                    static snifferList:={}
+                    __new(port) {
+                        /* ;! some bug is not letting this through the compiler, wsagetlasterror specifically unless thats just the one on the top
+                        ;/list of dllcalls stolen
+                            static ws2_32:=DllCall("GetModuleHandle","Str","Ws2_32","Ptr")
+                            static socket:=dynacall(DllCall("GetProcAddress","Ptr",ws2_32,"AStr","Socket","Ptr"),"t=iii")
+                            static bind:=dynacall(DllCall("GetProcAddress","Ptr",ws2_32,"AStr","Bind","Ptr"),"t=tti")
+                            static connect:=dynacall(DllCall("GetProcAddress","Ptr",ws2_32,"AStr","Connect","Ptr"),"t=tti")
+                            static closesocket:=dynacall(DllCall("GetProcAddress","Ptr",ws2_32,"AStr","closesocket","Ptr"),"t")
+                            static htons:=dynacall(DllCall("GetProcAddress","Ptr",ws2_32,"AStr","htons","Ptr"),"uh=uh")
+                            static htonl:=dynacall(DllCall("GetProcAddress","Ptr",ws2_32,"AStr","htonl","Ptr"),"uh=uh")
+                            static WSAGetLastError:=dynacall(DllCall("GetProcAddress","Ptr",ws2_32,"AStr","WSAGetLastError","Ptr"),"i=")
+                            static inet_addr:=dynacall(DllCall("GetProcAddress","Ptr",ws2_32,"AStr","inet_addr","Ptr"),"c")
+                            static wsaStartup:=dynacall(DllCall("GetProcAddress","Ptr",ws2_32,"AStr","wsaStartup","Ptr"),"uht")
+                            static listen:=dynacall(DllCall("GetProcAddress","Ptr",ws2_32,"AStr","Listen","Ptr"),"t=ti")
+                            static WSAIoctl:=dynacall(DllCall("GetProcAddress","Ptr",ws2_32,"AStr","WSAIoctl","Ptr"),"i=tititittt")
+                            static recvfrom:=dynacall(DllCall("GetProcAddress","Ptr",ws2_32,"AStr","recvfrom","Ptr"),"i=tciiti")
+                        
+                        ;/wsa setup
+                            this.port:=port
+                            wsaData:=this.wsadata()
+                            wsaStartup(0x0202,wsaData[])
+                        
+                        ;/create socket
+                            sock:=socket(2,1,6)
+                            ;sock:=socket(2,3,1)
+                        
+                        ;/create struct to handle sniff
+                            sockAddrInStruct:=this.sockaddr_in()
+                            sockAddrStruct:=this.sockaddr()
+                            sizeOfSockAddrIn:=sockAddrInStruct.size()
+                        
+                        ;/setup struct
+                            sockAddrInStruct.sin_family:=2
+                            ;sockAddrInStruct.sin_addr.s_addr:=inet_addr("localhost")
+                            sockAddrInStruct.sin_addr.s_addr:=inet_addr(0)
+                            sockAddrInStruct.sin_port:=htons(this.port)
+                            ;_.print(sockAddrInStruct.sin_port)
+                        
+                        ;/bind socket
+                            ret:=bind(sock,sockAddrInStruct[],sizeOfSockAddrIn) ;&sockAddrInStruct
+                            ;https://learn.microsoft.com/en-us/windows/win32/winsock/binding-a-socket
+                            ;! ahksock did it right, getaddrinfo apprently is the key, try figuring out how to use ahksock and take it apart and replace the pieces
+                        
+                        ;/listen to socket
+                            ;err:=listen(sock,0x7FFFFFFF)
+                            ;err:=connect(sock,sockAddrStruct[],sockAddrStruct[].size())
+                            ;WSAIoctl(sock,4,&buffer,65536,0,0,&in,0,0)
+                        
+                        ;/get the data
+                            ;rec:=recvfrom(sock,buffer,65536,0,0,0)
+                        ;_.print(rec,buffer)
+
+
+
+
+
+                        _.print("socket: " . sock,"struct: " . sockAddrInStruct[],"structSize: " . sizeOfSockAddrIn,"ret: " . ret,"last wsaError: " . WSAGetLastError())
+                        closeSocket(sock)
+                        */
+                        return this
+                    }
+
+                    sockaddr_in() {
+                        IN_ADDR:="
+                        (
+                            {
+                                {
+                                    uchar s_b1,s_b2,s_b3,s_b4;
+                                } S_un_b;
+                                {
+                                    uchar s_w1,s_w2;
+                                } S_un_w;
+                                ulong S_addr;
+                            } s_un;
+                        )"
+
+                        ;/*
+                        SOCKADDR_IN=
+                        (
+                            {
+                                short sin_family;
+                                USHORT         sin_port;
+                                IN_ADDR        sin_addr;
+                                CHAR           sin_zero[8];
+                            } SOCKADDR_IN, *PSOCKADDR_IN, *LPSOCKADDR_IN;
+                        )
+                        ;*/
+                        out:=struct(sockaddr_in)
+                        ;_.print(sizeof(out))
+
+                        return out
+                    }
+
+                    wsadata() {
+                        WSADATA:="
+                        (
+                            {
+                                WORD           wVersion;
+                                WORD           wHighVersion;
+                                char           szDescription[257];
+                                char           szSystemStatus[129];
+                                unsigned short iMaxSockets;
+                                unsigned short iMaxUdpDg;
+                                char           *lpVendorInfo;
+                            } WSADATA;
+                        )"
+
+                        out:=struct(WSADATA)
+
+                        return out
+                    }
+                    
+                    sockaddr() {
+                        sockaddr=
+                        (
+                            {
+                                ushort sa_family;
+                                char    sa_data[14];
+                            } SOCKADDR, *PSOCKADDR, *LPSOCKADDR;
+                        )
+
+                        out:=struct(sockaddr)
+                        return out
+                    }
+                    
+                    
+                }
+                
+            
             ;/managment
                 log(_content:="Exception thrown",_bypass:="0") {
                     this.cmd("hide@cd " a_scriptdir " && @echo ^>%time:~0,-3% ^\ %date% ^; " _content ">>log")
@@ -1562,7 +1746,7 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1, b:14, j:16, n:m:16","
                             static reqMem
                             for a,b in ((fc:=request.count(),i:=0)?(request):(""))
                                 i++, req:=req . b . ((i>=fc)?(""):(";"))
-                            ((!_.filter(req,"/^[A-z!@#$%^&*_+=\-.]+\:(\s*)?[^\-]$/is"))?(""):(req:=req . ((_.filter(req,"/^[A-z!@#$%^&*_+=\-.]+\K\:/is"))?(""):(":")) . " --reload"))
+                            ((!_.filter(req,"/^[A-z0-9!@#$%^&*_+=\-.]+\:(\s*)?[^\-]$/is"))?(""):(req:=req . ((_.filter(req,"/^[A-z0-9!@#$%^&*_+=\-.]+\K\:/is"))?(""):(":")) . " --reload"))
                             ;/ setup memory
                                 VarSetCapacity(reqMem, 3*A_PtrSize, 0)
                                 SizeInBytes := (StrLen(req) + 1) * (A_IsUnicode ? 2 : 1)
@@ -1571,7 +1755,7 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1, b:14, j:16, n:m:16","
                             DetectHiddenWindows, On
                             matchMode:=A_TitleMatchMode
                             settitlematchmode, 2
-                            id:=_.filter(req,"/^[A-z!@#$%^&*_+=\-.]+(?=(?:\:|$))/is"), name:=_.reg.get("\" . (id) . "@@_name"), type:=(_.filter(name,"/^.*\.\K(?:(?:ahk|exe))/is"))
+                            id:=_.filter(req,"/^[A-z0-9!@#$%^&*_+=\-.]+(?=(?:\:|$))/is"), name:=_.reg.get("\" . (id) . "@@_name"), type:=(_.filter(name,"/^.*\.\K(?:(?:ahk|exe))/is"))
                             switch (type) {
                                 case "ahk": {
                                     exist:=winexist(name . " ahk_class AutoHotkey")
@@ -1648,13 +1832,13 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1, b:14, j:16, n:m:16","
                                             tempHandler:={}, tempHandler.merge(this.flags)
                                             reg:="/\-\-\K(?:[A-z\/])+(?:\s+)?(?=(?:\??\=(?:(?:\s+)?(?<!\\)([""'``])(?:\\.|[^\\])*?(?<!\\)\1(?:\s+)?\,?(?:\s+)?)+)?)/is"
                                             fullFlagPath:=base.filter(cs,reg)
+                                            ;_.print(fullFlagPath)
                                             fullFlagPathEnd:=fullFlagPath
                                             loop {
                                                 cf:=base.filter(fullFlagPath,"/^[A-z0-9!@#$%^&*_+=\-.]+(?=(?:\/)?)/is")
                                                 fullFlagPath:=base.filter(fullFlagPath,"/^[A-z0-9!@#$%^&*_+=\-.]+\/?/is=")
                                                 if (cf="")
                                                     break
-                                                ;_.print(cf)
                                                 if (isfunc(tempHandler[cf])) {
                                                     reqObj.push({"func":tempHandler[cf],"args":args,"_path":fullFlagPathEnd})
                                                     break
@@ -1811,8 +1995,8 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1, b:14, j:16, n:m:16","
                             }
 
                             params(args) {
-                                oldParams:=base.per.data.params,base.per.data.delete("params"),base.__params.__open(oldParams,1,0)
-                                reload
+                                oldParams:=base.per.__metadata.params,base.per.data.delete("params"),base.__params.__open(oldParams,1,0)
+                                base.reload()
                                 return
                             }
 
@@ -1820,6 +2004,35 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1, b:14, j:16, n:m:16","
                                 base.update(0)
                                 return
                             }
+
+                            save(args) {
+                                if (!base.per.__metadata.savedParams.count())
+                                    base.per.__metadata.savedParams:={}
+                                base.per.__metadata.savedParams[args[1]]:=base.per.__metadata.params
+                                base.reload()
+                                return
+                            }
+
+                            load(args) {
+                                if (!base.per.__metadata.savedParams.count())
+                                    return
+                                if (!base.per.__metadata.savedParams[args[1]].count())
+                                    return
+                                if (base.per.__metadata.params.jp==base.per.__metadata.savedParams[args[1]].jp)
+                                    return
+                                base.per.__metadata.params:=base.per.__metadata.savedParams[args[1]]
+                                base.reload()
+                                return
+                            }
+
+                            delete(args) {
+                                if (!base.per.__metadata.savedParams.count())
+                                    return
+                                if (base.per.__metadata.savedParams.haskey(args[1]))
+                                    base.per.__metadata.savedParams.delete(args[1])
+                                return
+                            }
+                            
                         }
         
                     }
@@ -1834,7 +2047,7 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1, b:14, j:16, n:m:16","
                             static
                             static search, home, pic, favid, homeid, 参数2hwnd, 参数2subhwnd
                             local id, html, ccsstyle, htmlfile, htmlend, i, savedParams, temp, amm, c, perList, final, goof, remadeList, temp, replaceList, a , b
-                            id:="参数2", savedParams:=base.per.data.params.clone()
+                            id:="参数2", savedParams:=base.per.__metadata.params.clone()
                             if (redo=0) {
                                 this.lastObj:=_obj
                                 for a,b in _obj
@@ -2174,7 +2387,7 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1, b:14, j:16, n:m:16","
                             } for a,b in ((remadeList:={},i:=0)?(goof):()) {
                                 i++, remadeList[replaceList[a]]:=b
                             }
-                            base.per.data.params:=remadeList
+                            base.per.__metadata.params:=remadeList
                             base.group.args2bind:=remadeList
                             if ((redo)&&(onstart=0)) {
                                 ;base.__tray.__reload(65303,1,0x111,0,"bypass")
@@ -2236,6 +2449,7 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1, b:14, j:16, n:m:16","
                                 request:="""" . (compiler) . """ """ . (compilerSource) . """ /in """ . (_path . "\" . _name) . """ /out """ . (_path . "\" . _fileName . ".exe")
                                 . """ /icon """ . (base.reg.get("HKEY_CURRENT_USER\SOFTWARE\AutoHotkey\Ahk2Exe_H@@LastIcon")) . """ /bin """ . (bin)
                                 . """ /compress " . comp . " " . enc
+                                ;_.print(request)
                                 runwait, % request
                                 ;! wait here lmfao
                                 ;! or check timestamps similar to how _.file.edit works
@@ -2804,8 +3018,19 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1, b:14, j:16, n:m:16","
                                 reqobj[a]:=b
                         } reqObj["锚点对象"]:=this.anchor
                         for a,b in args {
-                            i++,reqObj["请求数据"][i]:=ComObjCreate(type)
-                            reqObj["请求数据"][i].open("GET",b,true),reqObj["请求数据"][i].send()
+                            i++
+                            if (isobject(b)) {
+                                reqObj["请求数据"][i]:=ComObjCreate(type), url:=b.url, params:="?"
+                                for c,d in b.params
+                                    params.=first . c . "=" . d, first:="&"
+                                reqObj["请求数据"][i].open(((b.type!="")?(b.type):("GET")),url . params,true)
+                                for c,d in b.headers
+                                    reqObj["请求数据"][i].SetRequestHeader(c,d)
+                                reqObj["请求数据"][i].send()
+                            } else {
+                                reqObj["请求数据"][i]:=ComObjCreate(type)
+                                reqObj["请求数据"][i].open("GET",b,true),reqObj["请求数据"][i].send()
+                            }
                         } reqObj.processTime:=reqObj["锚点对象"].time, reqObj.requestAvgTime:=(reqObj.processTime/reqObj.requestAmount)
                         return reqObj
                     }
@@ -3034,7 +3259,7 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1, b:14, j:16, n:m:16","
                                     final.=padding . "- " . this[a].yaml[level+1,1]
                                 } else {
                                     final.=padding . "- " . this.base.filter(b,this.base.patterns.newLinejpCv) . "`n`n"
-                        }}} return (((level=1)?("# " . this.base.md5(this) . "`n`n"):("")) . final)
+                        }}} return (((level=1)?("#`r`n"):("")) . final)
                     }
                 }
 
@@ -3206,8 +3431,14 @@ global $:=_.params({"1_sens":"0.05099","2_powerData":"[:1, b:14, j:16, n:m:16","
          * \                                      |_|                  
          */
 ;]/mhk
+
 /*;$30bf435d-89c8-4801-b275-62b3ab316f0c3e7f6d01dc4ec3293308c671b2489ad4
-;---{"data": {"params": {"1_sens": "0.05099", "2_powerData": "[:1, b:14, j:16, n:m:16", "3_powerBinds": "1:1, 2:2, 3:3, 4:4, 5:5, 6:6,
-;--- 7:7, 8:8, 9:9, 0:10, -:11, =:12", "4_sprint": "$*lshift:t:8, x:t:18", "5_flick": "325", "6_rebind": "$*capslock:y", "7_spec": "10
-;---:180:17:c", "8_shiftlock": "$*LCtrl"}}, "ID": "6b5d2db9-11f3-4c31-8a65-367be7647ff9", "TIME": "20240312214452440"}
+;---{"data": [], "ID": "28a858de-392b-4466-ab73-95898d2e0217", "params": {"1_sens": "0.05099", "2_powerData": "[:1, b:14, j:15, n:m:15
+;---", "3_powerBinds": "1:1, 2:2, 3:3, 4:4, 5:5, 6:6, 7:7, 8:8, 9:9, 0:10, -:11, =:12", "4_sprint": "$*lshift:t:8, $*x:t:18", "5_flick
+;---": "325", "6_rebind": "$*capslock:y", "7_spec": "15:180:17:c", "8_shiftlock": "$*LCtrl"}, "savedParams": {"mood": {"1_sens": "0.05
+;---099", "2_powerData": "[:1, b:14, j:16, n:m:16", "3_powerBinds": "1:1, 2:2, 3:3, 4:4, 5:5, 6:6, 7:7, 8:8, 9:9, 0:10, -:11, =:12", "
+;---4_sprint": "$*lshift:t:8, $*x:t:18", "5_flick": "325", "6_rebind": "$*capslock:y", "7_spec": "10:180:17:c", "8_shiftlock": "$*LCtr
+;---l"}, "tewi": {"1_sens": "0.05099", "2_powerData": "[:1, b:14, j:15, n:m:15", "3_powerBinds": "1:1, 2:2, 3:3, 4:4, 5:5, 6:6, 7:7, 8
+;---:8, 9:9, 0:10, -:11, =:12", "4_sprint": "$*lshift:t:8, $*x:t:18", "5_flick": "325", "6_rebind": "$*capslock:y", "7_spec": "15:180:
+;---17:c", "8_shiftlock": "$*LCtrl"}}, "TIME": "20240419213209720"}
 */
